@@ -60,3 +60,13 @@ services:
       - 'mariaDbData:/var/lib/mysql'
     networks:
      - bap
+  mdns-advertise:
+    image: bhcr.io/gh_nucleardreamer/mdns-advertise
+    restart: "always"
+    privileged: true
+    network_mode: host
+    labels:
+      io.balena.features.dbus: '1'
+    environment:
+      DBUS_SYSTEM_BUS_ADDRESS: 'unix:path=/host/run/dbus/system_bus_socket'
+      MDNS_TLD: 'bap.local'

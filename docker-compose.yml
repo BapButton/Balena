@@ -1,0 +1,62 @@
+version: '2.1'
+networks:
+    bap:
+       driver: bridge
+volumes:
+    mosquitto:
+    mariaDbData:
+    bap-data:
+services:
+  opentts:
+    image: synesthesiam/opentts:es
+    hostname: opentts
+    container_name: opentts
+    restart: unless-stopped
+    ports:
+     - 5500:5500
+    networks:
+     - bap
+  mosquitto:
+    build: Mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+     - 1883:1883
+    networks:
+     - bap
+  bapwebapp:
+    restart: unless-stopped
+    depends_on:
+      - db
+      - mosquitto
+      - opentts
+    environment:
+      - "TZ=America/Los_Angeles" 
+      - MosquittoAddress=mosquitto
+    build: .
+    volumes:  
+      - 'bap-data:/data'
+    networks:
+    - bap
+    ports:
+     - 80:8080
+    labels:
+      io.balena.features.supervisor-api: '1'
+  wifictrl:
+    build: WifiControl
+    restart: unless-stopped
+    environment:
+      AP_SSID: BAPButton
+      AP_PASSWORD: B@pB@p1234
+    labels:
+      io.balena.features.dbus: '1'
+    networks:
+     - bap
+  db:
+    image: mariadb:latest
+    restart: unless-stopped
+    volumes:  
+      - 'mariaDbData:/var/lib/mysql'
+    networks:
+     - bap

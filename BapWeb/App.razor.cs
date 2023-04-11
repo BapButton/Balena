@@ -9,6 +9,5 @@ namespace BapWeb
         [Inject]
         LoadedAddonHolder loadedAddons { get; set; } = default!;
 
-
     }
 }
